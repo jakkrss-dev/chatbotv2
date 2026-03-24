@@ -2,11 +2,7 @@ import pypdf
 from google import genai
 from sqlalchemy.orm import Session
 from backend.database import SessionLocal, DocChunk
-from backend.config import GEMINI_API_KEY, EMBED_MODEL
-import uuid
-import os
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+from backend.config import get_genai_client, EMBED_MODEL
 
 def extract_text_pypdf(file_path: str) -> str:
     try:
@@ -58,7 +54,7 @@ def embed_chunks(chunks: list[str]) -> list[list[float]]:
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i:i+batch_size]
         print(f"Embedding batch {i//batch_size + 1}/{(len(chunks)-1)//batch_size + 1} ({len(batch)} chunks)...")
-        response = client.models.embed_content(
+        response = get_genai_client().models.embed_content(
             model=EMBED_MODEL,
             contents=batch,
             config=_genai.types.EmbedContentConfig(

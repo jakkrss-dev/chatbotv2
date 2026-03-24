@@ -1,13 +1,10 @@
 from google import genai
 from sqlalchemy import text
 from backend.database import SessionLocal
-from backend.config import GEMINI_API_KEY, EMBED_MODEL
-import json
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+from backend.config import get_genai_client, EMBED_MODEL
 
 def embed_query(query: str) -> list[float]:
-    response = client.models.embed_content(
+    response = get_genai_client().models.embed_content(
         model=EMBED_MODEL,
         contents=[query],
         config=genai.types.EmbedContentConfig(

@@ -17,7 +17,15 @@ UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # AI Utilities
-client = genai.Client(api_key=GEMINI_API_KEY)
+_client = None
+
+def get_genai_client():
+    global _client
+    if _client is None:
+        if not GEMINI_API_KEY:
+            raise Exception("GEMINI_API_KEY is not set in environment variables.")
+        _client = genai.Client(api_key=GEMINI_API_KEY)
+    return _client
 
 # Broad fallback list tailored to available models in this specific environment
 FALLBACK_MODELS = [
@@ -47,7 +55,7 @@ def generate_with_fallback(prompt: str = None, contents=None, config=None):
             try:
                 # Support both simple prompt and full contents
                 input_contents = contents if contents is not None else prompt
-                response = client.models.generate_content(
+                response = get_genai_client().models.generate_content(
                     model=model_name,
                     contents=input_contents,
                     config=config
