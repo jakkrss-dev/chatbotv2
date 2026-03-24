@@ -45,13 +45,25 @@ async def chat(request: ChatRequest):
             "latency_ms": 10
         }
     except Exception as e:
+        import traceback
         err_str = str(e)
+        print(f"ERROR in /chat: {err_str}")
+        print(traceback.format_exc())
+        
         if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
             return JSONResponse(
                 status_code=503,
-                content={"error": "Gemini API quota exceeded. Please wait a minute and try again, or use a different API key.", "detail": err_str[:200]}
+                content={"error": "Gemini API quota exceeded.", "detail": err_str[:200]}
             )
-        raise HTTPException(status_code=500, detail=f"Chat processing error: {err_str[:300]}")
+        
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "Internal Server Error",
+                "detail": err_str[:500],
+                "type": type(e).__name__
+            }
+        )
 
 @app.post("/chat/stream")
 async def chat_stream(request: ChatRequest):
