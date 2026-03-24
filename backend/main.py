@@ -76,17 +76,24 @@ async def chat_stream(request: ChatRequest):
 @app.get("/documents")
 def list_documents():
     """List all unique documents that have been ingested."""
-    from backend.database import SessionLocal, DocChunk
-    from sqlalchemy import text
-    db = SessionLocal()
     try:
-        rows = db.execute(text(
-            "SELECT DISTINCT doc_id, metadata->>'filename' AS filename, COUNT(*) AS chunks "
-            "FROM doc_chunks GROUP BY doc_id, filename ORDER BY filename"
-        )).fetchall()
-        return [{"doc_id": r.doc_id, "filename": r.filename or "Unknown", "chunks": r.chunks} for r in rows]
-    finally:
-        db.close()
+        from backend.database import SessionLocal, DocChunk
+        from sqlalchemy import text
+        db = SessionLocal()
+        try:
+            rows = db.execute(text(
+                "SELECT DISTINCT doc_id, metadata->>'filename' AS filename, COUNT(*) AS chunks "
+                "FROM doc_chunks GROUP BY doc_id, filename ORDER BY filename"
+            )).fetchall()
+            return [{"doc_id": r.doc_id, "filename": r.filename or "Unknown", "chunks": r.chunks} for r in rows]
+        except Exception as db_err:
+            print(f"Database Query Error: {db_err}")
+            raise HTTPException(status_code=500, detail=f"Database connection or query failed: {str(db_err)}")
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"Server Error in /documents: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 @app.delete("/documents/{doc_id}")
 def delete_document(doc_id: str):
