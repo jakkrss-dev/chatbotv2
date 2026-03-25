@@ -4,6 +4,11 @@ sqlalchemy
 psycopg2-binary
 pgvector
 pypdf
+fastapi
+sqlalchemy
+psycopg2-binary
+pgvector
+pypdf
 python-multipart
 sse-starlette
 google-genai
@@ -11,6 +16,4 @@ langchain
 langchain-google-genai
 python-dotenv
 duckduckgo-search
-gunicorn
 uvicorn
-gunicorn

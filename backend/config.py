@@ -13,7 +13,7 @@ EMBED_DIM = int(os.getenv("EMBED_DIM", 768))
 
 print(f"DEBUG: Initializing with CHAT_MODEL = {CHAT_MODEL}")
 
-if os.getenv("VERCEL") or os.getenv("RENDER"):
+if os.getenv("VERCEL"):
     UPLOAD_DIR = "/tmp"
 else:
     UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
