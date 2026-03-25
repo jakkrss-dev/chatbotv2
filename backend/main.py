@@ -33,6 +33,37 @@ class ChatRequest(BaseModel):
 def health_check():
     return {"status": "healthy", "db": "connected"}
 
+@app.get("/debug")
+def debug_check():
+    """Debug endpoint to verify Gemini API config on Vercel."""
+    import os
+    from backend.config import GEMINI_API_KEY, CHAT_MODEL, FALLBACK_MODELS, DATABASE_URL
+    
+    result = {
+        "api_key_set": bool(GEMINI_API_KEY),
+        "api_key_preview": (GEMINI_API_KEY[:8] + "..." + GEMINI_API_KEY[-4:]) if GEMINI_API_KEY else "NOT SET",
+        "chat_model": CHAT_MODEL,
+        "fallback_models": FALLBACK_MODELS,
+        "database_url_set": bool(DATABASE_URL),
+        "is_vercel": bool(os.getenv("VERCEL")),
+    }
+    
+    # Quick test: try a minimal Gemini API call
+    try:
+        from backend.config import get_genai_client
+        client = get_genai_client()
+        response = client.models.generate_content(
+            model=CHAT_MODEL,
+            contents="Say OK",
+        )
+        result["api_test"] = "SUCCESS"
+        result["api_response"] = response.text[:100]
+    except Exception as e:
+        result["api_test"] = "FAILED"
+        result["api_error"] = str(e)[:500]
+    
+    return result
+
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
