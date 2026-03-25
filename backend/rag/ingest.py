@@ -1,3 +1,5 @@
+import os
+import uuid
 import pypdf
 from google import genai
 from sqlalchemy.orm import Session
