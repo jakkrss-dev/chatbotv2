@@ -8,7 +8,7 @@ load_dotenv(override=True)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://app:app@localhost:5432/ragdb")
 EMBED_MODEL = "models/gemini-embedding-001"
-CHAT_MODEL = os.getenv("CHAT_MODEL", "gemini-1.5-flash") 
+CHAT_MODEL = os.getenv("CHAT_MODEL", "gemini-2.0-flash") 
 EMBED_DIM = int(os.getenv("EMBED_DIM", 768))
 
 print(f"DEBUG: Initializing with CHAT_MODEL = {CHAT_MODEL}")
@@ -34,13 +34,10 @@ def get_genai_client():
 # Broad fallback list tailored to available models in this specific environment
 FALLBACK_MODELS = [
     CHAT_MODEL, 
-    'gemini-2.0-flash-exp',
     'gemini-2.0-flash',
-    'gemini-1.5-flash-latest',
-    'gemini-1.5-pro-latest',
-    'gemini-1.5-flash-8b',
-    'gemini-1.5-flash', 
-    'gemini-1.5-pro'
+    'gemini-2.0-flash-lite',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
 ]
 
 def generate_with_fallback(prompt: str = None, contents=None, config=None):
