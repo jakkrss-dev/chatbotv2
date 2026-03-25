@@ -53,7 +53,7 @@ async def chat(request: ChatRequest):
         if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
             return JSONResponse(
                 status_code=503,
-                content={"error": "Gemini API quota exceeded.", "detail": err_str[:200]}
+                content={"error": "Gemini API quota exceeded.", "detail": err_str[:500]}
             )
         
         return JSONResponse(

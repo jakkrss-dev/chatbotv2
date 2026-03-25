@@ -44,6 +44,9 @@ def generate_with_fallback(prompt: str = None, contents=None, config=None):
     """Generates content with automatic model fallback and retry logic for 429 errors."""
     last_err = None
     all_errors = {}
+    is_vercel = bool(os.getenv("VERCEL"))
+    max_retries = 1 if is_vercel else 2
+    retry_sleep = 0.5 if is_vercel else 2
     # Deduplicate while preserving order
     models_to_try = []
     for m in FALLBACK_MODELS:
@@ -51,7 +54,7 @@ def generate_with_fallback(prompt: str = None, contents=None, config=None):
             models_to_try.append(m)
             
     for model_name in models_to_try:
-        retries = 2
+        retries = max_retries
         while retries >= 0:
             try:
                 # Support both simple prompt and full contents
@@ -70,7 +73,7 @@ def generate_with_fallback(prompt: str = None, contents=None, config=None):
                 if "429" in err_str or "resource_exhausted" in err_str or "quota" in err_str:
                     print(f"Quota hit for {model_name}, retrying... ({retries} retries left)")
                     retries -= 1
-                    time.sleep(2)
+                    time.sleep(retry_sleep)
                     last_err = e
                     continue
                 else:
